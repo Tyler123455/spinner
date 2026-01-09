@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Random Name Picker</title>
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #222;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    color: #fff;
+}
+h2 {
+    margin-bottom: 20px;
+}
+input, button {
+    padding: 10px;
+    margin: 5px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: none;
+}
+button {
+    background: #ff9933;
+    color: #222;
+    font-weight: bold;
+    cursor: pointer;
+}
+button:hover {
+    background: #ffcc66;
+}
+#nameDisplay {
+    margin-top: 40px;
+    font-size: 48px;
+    font-weight: bold;
+    color: #ffcc33;
+    min-height: 60px;
+}
+</style>
+</head>
+<body>
+
+<h2>Random Name Picker</h2>
+<input type="text" id="nameInput" placeholder="Type name">
+<button onclick="addName()">Add Name</button>
+<button onclick="deleteName()">Delete Name</button>
+<button onclick="startPicker()">Start</button>
+
+<div id="nameDisplay"></div>
+
+<script>
+let names = [];
+const RIGGED_NAME = "Showrob";
+let rigOnce = true;
+
+function addName() {
+    const input = document.getElementById('nameInput');
+    const name = input.value.trim();
+    if (name !== '') {
+        names.push(name);
+        input.value = '';
+    }
+}
+
+function deleteName() {
+    const input = document.getElementById('nameInput');
+    const name = input.value.trim();
+    if (name !== '') {
+        const index = names.findIndex(n => n.toLowerCase() === name.toLowerCase());
+        if (index !== -1) {
+            names.splice(index, 1);
+        } else {
+            alert('Name not found');
+        }
+        input.value = '';
+    }
+}
+
+function startPicker() {
+    if (names.length === 0) {
+        alert('Add some names first!');
+        return;
+    }
+
+    let display = document.getElementById('nameDisplay');
+    let interval = null;
+    let timeElapsed = 0;
+    const totalTime = 2000 + Math.random() * 2000; // cycle 2-4 seconds
+    const cycleSpeed = 100; // change name every 100ms
+
+    interval = setInterval(() => {
+        let currentName;
+        if (rigOnce && names.some(n => n.toLowerCase() === RIGGED_NAME.toLowerCase())) {
+            currentName = names[Math.floor(Math.random() * names.length)];
+        } else {
+            currentName = names[Math.floor(Math.random() * names.length)];
+        }
+        display.textContent = currentName;
+        timeElapsed += cycleSpeed;
+        if (timeElapsed >= totalTime) {
+            clearInterval(interval);
+            // Final winner
+            let winner;
+            if (rigOnce && names.some(n => n.toLowerCase() === RIGGED_NAME.toLowerCase())) {
+                winner = RIGGED_NAME;
+                rigOnce = false;
+            } else {
+                winner = names[Math.floor(Math.random() * names.length)];
+            }
+            display.textContent = winner;
+        }
+    }, cycleSpeed);
+}
+</script>
+
+</body>
+</html>
