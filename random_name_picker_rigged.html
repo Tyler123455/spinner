@@ -82,6 +82,14 @@ button:hover {
 #winnerScreen button {
     margin-top: 30px;
     font-size: 24px;
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    background: #ff9933;
+    color: #222;
+}
+#winnerScreen button:hover {
+    background: #ffcc66;
 }
 </style>
 </head>
@@ -102,7 +110,7 @@ button:hover {
 
 <div id="winnerScreen">
     <div id="winnerName"></div>
-    <button onclick="closeWinner()">Close</button>
+    <button id="closeWinnerBtn">Close</button>
 </div>
 
 <script>
@@ -156,7 +164,6 @@ function startPicker() {
         return;
     }
 
-    // Hide buttons and list while cycling
     document.getElementById('nameInput').style.display = 'none';
     document.querySelectorAll('button').forEach(btn => btn.style.display = 'none');
     document.getElementById('nameList').style.display = 'none';
@@ -164,8 +171,8 @@ function startPicker() {
     let display = document.getElementById('nameDisplay');
     let interval = null;
     let timeElapsed = 0;
-    const totalTime = 3000 + Math.random() * 2000; // 3-5 seconds
-    const cycleSpeed = 100; // 0.3 seconds per name
+    const totalTime = 3000 + Math.random() * 2000;
+    const cycleSpeed = 300;
 
     interval = setInterval(() => {
         let currentName = names[Math.floor(Math.random() * names.length)];
@@ -193,13 +200,16 @@ function showWinner(winner) {
     document.getElementById('nameDisplay').textContent = '';
 }
 
-function closeWinner() {
+// Fixed close button event for mobile
+document.getElementById('closeWinnerBtn').addEventListener('click', function() {
     const winnerScreen = document.getElementById('winnerScreen');
     winnerScreen.style.display = 'none';
     document.getElementById('nameInput').style.display = 'inline';
-    document.querySelectorAll('button').forEach(btn => btn.style.display = 'inline');
+    document.querySelectorAll('button').forEach(btn => {
+        if (btn.id !== 'closeWinnerBtn') btn.style.display = 'inline';
+    });
     document.getElementById('nameList').style.display = 'block';
-}
+});
 </script>
 
 </body>
