@@ -78,18 +78,7 @@ button:hover {
     flex-direction: column;
     z-index: 100;
     display: none;
-}
-#winnerScreen button {
-    margin-top: 30px;
-    font-size: 24px;
     cursor: pointer;
-    border: none;
-    border-radius: 8px;
-    background: #ff9933;
-    color: #222;
-}
-#winnerScreen button:hover {
-    background: #ffcc66;
 }
 </style>
 </head>
@@ -110,7 +99,6 @@ button:hover {
 
 <div id="winnerScreen">
     <div id="winnerName"></div>
-    <button id="closeWinnerBtn">Close</button>
 </div>
 
 <script>
@@ -200,14 +188,12 @@ function showWinner(winner) {
     document.getElementById('nameDisplay').textContent = '';
 }
 
-// Fixed close button event for mobile
-document.getElementById('closeWinnerBtn').addEventListener('click', function() {
+// Close winner screen when anywhere is tapped
+document.getElementById('winnerScreen').addEventListener('click', function() {
     const winnerScreen = document.getElementById('winnerScreen');
     winnerScreen.style.display = 'none';
     document.getElementById('nameInput').style.display = 'inline';
-    document.querySelectorAll('button').forEach(btn => {
-        if (btn.id !== 'closeWinnerBtn') btn.style.display = 'inline';
-    });
+    document.querySelectorAll('button').forEach(btn => btn.style.display = 'inline');
     document.getElementById('nameList').style.display = 'block';
 });
 </script>
