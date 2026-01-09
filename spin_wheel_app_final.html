@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spin Wheel</title>
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #222;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    color: #fff;
+}
+h2 { margin-top: 20px; color: #fff; }
+#wheel-container {
+    position: relative;
+    width: 90vw;
+    max-width: 400px;
+    height: 90vw;
+    max-height: 400px;
+    margin: 20px 0;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    border-radius: 50%;
+    background: #fff;
+}
+canvas { width: 100%; height: 100%; border-radius: 50%; }
+#pointer {
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-bottom: 40px solid #ff3333;
+    z-index: 10;
+    filter: drop-shadow(0 0 5px #000);
+}
+input, button {
+    padding: 10px;
+    margin: 5px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: none;
+}
+button {
+    background: #ff9933;
+    color: #222;
+    font-weight: bold;
+    cursor: pointer;
+}
+button:hover {
+    background: #ffcc66;
+}
+input {
+    width: 200px;
+}
+</style>
+</head>
+<body>
+
+<h2>Spin Wheel</h2>
+<input type="text" id="nameInput" placeholder="Type name and press Add">
+<button onclick="addName()">Add Name</button>
+<button onclick="deleteName()">Delete Name</button>
+<button onclick="spinWheel()">Spin</button>
+
+<div id="wheel-container">
+    <canvas id="wheel"></canvas>
+    <div id="pointer"></div>
+</div>
+
+<script>
+let names = [];
+const RIGGED_NAME = "Showrob";
+let rigOnce = true;
+
+const canvas = document.getElementById("wheel");
+const ctx = canvas.getContext("2d");
+const size = canvas.width = canvas.height = canvas.parentElement.offsetWidth;
+let currentRotation = 0;
+
+function addName() {
+    const input = document.getElementById("nameInput");
+    const name = input.value.trim();
+    if (name !== "") {
+        names.push(name);
+        input.value = "";
+        drawWheel();
+    }
+}
+
+function deleteName() {
+    const input = document.getElementById("nameInput");
+    const name = input.value.trim();
+    if (name !== "") {
+        const index = names.findIndex(n => n.toLowerCase() === name.toLowerCase());
+        if (index !== -1) {
+            names.splice(index, 1);
+            drawWheel();
+        } else {
+            alert("Name not found on wheel");
+        }
+        input.value = "";
+    }
+}
+
+function drawWheel() {
+    const num = names.length;
+    ctx.clearRect(0, 0, size, size);
+    const anglePer = 2 * Math.PI / num;
+    for (let i = 0; i < num; i++) {
+        const grad = ctx.createLinearGradient(0, 0, size, size);
+        grad.addColorStop(0, `hsl(${i*360/num}, 70%, 60%)`);
+        grad.addColorStop(1, `hsl(${(i*360/num+30)%360}, 80%, 70%)`);
+        ctx.fillStyle = grad;
+
+        ctx.beginPath();
+        ctx.moveTo(size/2, size/2);
+        ctx.arc(size/2, size/2, size/2, i*anglePer, (i+1)*anglePer);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = "#fff";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.save();
+        ctx.translate(size/2, size/2);
+        ctx.rotate(i*anglePer + anglePer/2);
+        ctx.textAlign = "right";
+        ctx.fillStyle = "#222";
+        ctx.font = `${Math.floor(size/14)}px Arial`;
+        ctx.fillText(names[i], size/2 - 10, 0);
+        ctx.restore();
+    }
+}
+
+function chooseWinner() {
+    if (rigOnce) {
+        for (let name of names) {
+            if (name.trim().toLowerCase() === RIGGED_NAME.toLowerCase()) {
+                rigOnce = false;
+                return name;
+            }
+        }
+    }
+    return names[Math.floor(Math.random() * names.length)];
+}
+
+function spinWheel() {
+    if (names.length === 0) return alert("Add some names first!");
+    const winner = chooseWinner();
+    const winnerIndex = names.indexOf(winner);
+    const anglePer = 360 / names.length;
+
+    const stopAngle = 360 - (winnerIndex * anglePer + anglePer / 2);
+    const spins = 5 + Math.random() * 3;
+    const rotation = spins * 360 + stopAngle;
+
+    const duration = 4000;
+    const start = performance.now();
+    const initialRotation = currentRotation;
+
+    function animate(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        currentRotation = initialRotation + eased * (rotation - initialRotation);
+        canvas.style.transform = `rotate(${currentRotation}deg)`;
+        if (progress < 1) requestAnimationFrame(animate);
+        else alert("Winner: " + winner);
+    }
+
+    requestAnimationFrame(animate);
+}
+</script>
+
+</body>
+</html>
